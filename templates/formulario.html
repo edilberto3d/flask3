@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador de Insectos</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #6fb1fc 0%, #4364f7 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 32px rgba(60, 60, 60, 0.20);
+            padding: 32px 24px;
+            max-width: 380px;
+            width: 100%;
+            margin: 16px;
+        }
+        h1 {
+            text-align: center;
+            color: #4364f7;
+            margin-bottom: 28px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 18px;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input[type="text"]:focus {
+            border: 1.5px solid #4364f7;
+            background: #f0f5ff;
+        }
+        input[type="submit"] {
+            width: 100%;
+            background: linear-gradient(90deg, #6fb1fc 0%, #4364f7 100%);
+            color: #fff;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        input[type="submit"]:hover {
+            background: linear-gradient(90deg, #4364f7 0%, #6fb1fc 100%);
+        }
+        #resultado {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.06rem;
+            color: #212121;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 18px 8px;
+                max-width: 98vw;
+            }
+            h1 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+    <script>
+        function clasificarInsecto(event) {
+            event.preventDefault();
+            const abdomen = document.getElementById('abdomen').value;
+            const antena = document.getElementById('antena').value;
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `abdomen=${encodeURIComponent(abdomen)}&antena=${encodeURIComponent(antena)}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('resultado').innerText = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('resultado').innerText = 'El insecto es un/a ' + data.categoria;
+                }
+            })
+            .catch(error => {
+                document.getElementById('resultado').innerText = 'Error en la solicitud.';
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Clasificador de Insectos</h1>
+        <form id="formulario" onsubmit="clasificarInsecto(event)">
+            <label for="abdomen">Longitud del Abdomen:</label>
+            <input type="text" id="abdomen" name="abdomen" autocomplete="off" required>
+
+            <label for="antena">Longitud de las Antenas:</label>
+            <input type="text" id="antena" name="antena" autocomplete="off" required>
+
+            <input type="submit" value="Clasificar">
+        </form>
+        <p id="resultado"></p>
+    </div>
+</body>
+</html>
